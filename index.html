@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TriX Executor Accounts</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #1a202c;
+            color: #e2e8f0;
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+        }
+    </style>
+</head>
+<body class="p-8">
+    <h1 class="text-4xl font-bold text-center mb-8">TriX Executor Accounts</h1>
+    <div id="accounts-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Account cards will be rendered here -->
+        <p class="text-center text-gray-400 col-span-full">Loading accounts...</p>
+    </div>
+
+    <script>
+        const API_URL = '/api/accounts'; // This will be the API endpoint
+
+        async function fetchAccounts() {
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const accounts = await response.json();
+                renderAccounts(accounts);
+            } catch (error) {
+                console.error("Error fetching accounts:", error);
+                document.getElementById('accounts-container').innerHTML = '<p class="text-center text-red-400 col-span-full">Failed to load accounts.</p>';
+            }
+        }
+
+        function renderAccounts(accounts) {
+            const container = document.getElementById('accounts-container');
+            container.innerHTML = ''; // Clear loading message
+
+            if (accounts.length === 0) {
+                container.innerHTML = '<p class="text-center text-gray-400 col-span-full">No accounts found.</p>';
+                return;
+            }
+
+            accounts.forEach(account => {
+                const card = document.createElement('div');
+                card.className = 'bg-gray-800 rounded-lg shadow-lg p-6 flex flex-col items-center space-y-4';
+                card.innerHTML = `
+                    <img src="${account.profilePic || 'https://via.placeholder.com/100?text=No+PFP'}" alt="Profile Picture" class="w-24 h-24 rounded-full object-cover border-4 border-blue-500">
+                    <h2 class="text-xl font-semibold text-blue-300">${account.name}</h2>
+                    <p class="text-gray-300">Password: <span class="font-mono text-green-400">${account.password}</span></p>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Fetch accounts when the page loads
+        document.addEventListener('DOMContentLoaded', fetchAccounts);
+    </script>
+</body>
+</html>
